@@ -1,0 +1,436 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 日本語 resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 17, 1\r\n"
+    "#pragma code_page(932)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\SVIctl.rc2""  // Microsoft Visual C++ 以外のツールで編集されたリソース\r\n"
+    "#include ""l.jpn\\afxres.rc""          // 標準のコンポーネント\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\SVIctl.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SVICTL_DIALOG DIALOGEX 0, 0, 223, 241
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "SVMCtl_I2C"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
+BEGIN
+    LTEXT           "I2C Slave Address :",IDC_STATIC,16,14,59,8,SS_CENTERIMAGE
+    EDITTEXT        ID_SLAVE_ADDRESS,84,12,48,12,ES_AUTOHSCROLL
+    LTEXT           "Sub Address :",IDC_STATIC,16,36,59,8,SS_CENTERIMAGE
+    EDITTEXT        ID_SUB_ADDRESS,84,34,48,12,ES_AUTOHSCROLL
+    LTEXT           "Write Value :",IDC_STATIC,16,57,59,8,SS_CENTERIMAGE
+    EDITTEXT        ID_VALUE,84,55,48,12,ES_AUTOHSCROLL
+    LTEXT           "Read Counts :",IDC_STATIC,16,78,59,8,SS_CENTERIMAGE
+    EDITTEXT        ID_READ_COUNTS,84,76,48,12,ES_AUTOHSCROLL
+    LTEXT           "Read Value :",IDC_STATIC,16,97,59,8,SS_CENTERIMAGE
+    EDITTEXT        ID_DUMP_VALUE,12,108,120,124,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VSCROLL | WS_HSCROLL
+    CONTROL         "Word address &mode",ID_WORD_ADDRESS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,140,79,78,11
+    PUSHBUTTON      "Setting &File Write...",ID_INIT,138,12,62,16
+    PUSHBUTTON      "&Write",ID_WRITE,138,33,62,16
+    PUSHBUTTON      "&Read",ID_READ,138,55,62,16
+    DEFPUSHBUTTON   "SVM &Setting...",IDC_SVMSETTING,144,168,60,18,NOT WS_VISIBLE
+    CONTROL         "&Camera power",ID_BOARD_POWER,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,140,97,66,12
+    CONTROL         "F-Gate (debug)",ID_Debug,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,140,115,66,12
+    CONTROL         "Commit Suiside (debug)",ID_Debug2,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | NOT WS_VISIBLE | WS_TABSTOP,140,133,66,18
+    PUSHBUTTON      "Clear",IDC_BUTTON1,144,216,60,18
+    PUSHBUTTON      "SVM Restart",ID_RESTART_SVM,144,186,60,16,NOT WS_VISIBLE
+    PUSHBUTTON      "SVM &Info...",IDC_SVMINFO,144,150,36,18,NOT WS_VISIBLE
+    PUSHBUTTON      "Test",IDC_BUTTON2,180,150,24,18,NOT WS_VISIBLE
+END
+
+IDD_MSG_DIALOG DIALOGEX 0, 0, 151, 76
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x0
+BEGIN
+    LTEXT           "Static",IDC_MSG,7,7,137,62
+END
+
+IDD_SELECT_DIALOG DIALOGEX 0, 0, 172, 104
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Board"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,114,84,50,14
+    LISTBOX         IDC_LIST1,6,6,156,72,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_SELBOARD_DIALOG DIALOGEX 0, 0, 202, 26
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Board"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,144,6,50,14
+    COMBOBOX        IDC_COMBO1,12,6,126,108,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,2,2,1
+ PRODUCTVERSION 1,2,2,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040004b0"
+        BEGIN
+            VALUE "CompanyName", "Net Vision Corporation"
+            VALUE "FileDescription", "SVMCtl_I2C Application"
+            VALUE "FileVersion", "1.2.2.1"
+            VALUE "InternalName", "SVMctl"
+            VALUE "LegalCopyright", "Copyright (C) 2014-2021 Net Vision Corporation"
+            VALUE "OriginalFilename", "SVMctl.exe"
+            VALUE "ProductName", "SVMctl Application"
+            VALUE "ProductVersion", "1.2.2.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x400, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_SVICTL_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 216
+        TOPMARGIN, 8
+        BOTTOMMARGIN, 232
+    END
+
+    IDD_MSG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 144
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 69
+    END
+
+    IDD_SELECT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 165
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 97
+    END
+
+    IDD_SELBOARD_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 195
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 19
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP                  "clipping.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    ID_MSG_ERR_NOINPUTSLAVE "Slave Addressが未設定です。設定してください。"
+    ID_MSG_ERR_NOINPUTSUB   "Sub Addressが未設定です。設定してください。"
+    ID_MSG_ERR_NOINPUTVALUE "Write Valueが未設定です。設定してください。"
+    ID_MSG_ERR_NOINPUTREADCOUNTS "Read Countsに0以下が設定されてます。再設定してください。"
+    ID_MSG_ERR_DATASLAVE    "Slave Addressに英数字以外が設定されてます。再設定してください。"
+    ID_MSG_ERR_DATASUB      "Sub Addressに英数字以外が設定されてます。再設定してください。"
+    ID_MSG_ERR_DATAVALUE    "Write Valueに英数字とカンマ以外が設定されてます。再設定してください。"
+    ID_MSG_ERR_DATAREADCOUNTS "Read Countsに数値以外が設定されてます。再設定してください。"
+    ID_MSG_ERR_READ         "カメラレジスタの読込に失敗しました。\n再度実行し、失敗した場合は当アプリ、カメラを再起動してください。"
+    ID_MSG_ERR_WRITE        "カメラレジスタへの設定に失敗しました。\n再度実行し、失敗した場合は当アプリ、カメラを再起動してください。"
+    ID_MSG_ERR_INIT         "カメラレジスタへの初期設定に失敗しました。\n再度実行し、失敗した場合は当アプリ、カメラを再起動してください。"
+    ID_MSG_ERR_SVMSETTINGREAD 
+                            "SPIロムからのSVMSettingの読み込みに失敗しました。\nSVM-03ボードがPCと正しく接続されているか確認してください。"
+    ID_MSG_ERR_SVMSETTINGWRITE 
+                            "SPIロムからのSVMSettingの書き込みに失敗しました。\nSVM-03ボードがPCと正しく接続されているか確認してください。"
+    IDS_MSG_ERR_FX3UPDATE   "FX3のアップデートに失敗しました。\n再度アップデートを実行してください。"
+    IDS_MSG_ERR_FX3VERSIONINFO "FX3のバージョン情報の取得に失敗しました。\n再度実行してください。"
+    IDS_MSG_ERR_FX3BOOTDATAREAD "FX3のブートメモリ情報の取得に失敗しました。\n再度実行してください。"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_MSG_UPDATE_FILEREAD  "設定ファイルを読み込み中です。"
+    ID_MSG_UPDATE_DATAWRITE "設定ファイル内容をカメラレジスタへ反映中です"
+    ID_MSG_UPDATE_END       "設定が完了しました。"
+    IDS_MSG_ERR_NODEVICE    "None"
+    ID_MSG_ERR_NO_SVI03     "SVM-03 が見つかりません。SVM-03 を接続して、再度試行してください。"
+    ID_MSG_ERR_FILEOPEN     "設定ファイルが開けません。ファイルを確認してください"
+    ID_MSG_ERR_FILEREAD     "設定ファイルが読み込めません。ファイルを確認してください"
+    ID_MSG_FX3UPDATE_DATAWRITE 
+                            "FX3ファームウェアをアップデートしています。このまましばらくお待ちください。\n\n次のダイアログが表示されるまでUSBケーブルを抜かないでください。"
+    ID_MSG_FX3UPDATE_END    "FX3ファームウェアのアップデートが正常に終了しました。\nSVM-03ボードのUSBケーブルを抜いて再起動してください。"
+    ID_MSG_FPGAUPDATE_DATAWRITE 
+                            "FPGAファームウェアをアップデートしています。このまましばらくお待ちください。\nなお、次のダイアログが表示されるまで、更新中はUSBケーブルを抜かないでください。"
+    ID_MSG_FPGAUPDATE_END   "FPGAファームウェアのアップデートが正常に終了しました。\nSVM-03ボードのUSBケーブルを抜いて再起動してください。"
+    ID_MSG_FX3UPDATE_CONFIRMATION "FX3ファームウェアをアップデートします。\nよろしいですか？"
+    ID_MSG_FPGAUPDATE_CONFIRMATION "FPGAファームウェアをアップデートします。\nよろしいですか？"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_MSG_ERR_FX3VERIFY   "FX3のアップデートの確認（Verify）に失敗しました。\n再度アップデートを実行してください。"
+    IDS_MSG_ERR_FPGAUPDATE  "FPGAのアップデートに失敗しました。\n再度アップデートを実行してください。"
+    IDS_MSG_ERR_FPGAVERIFY  "FPGAのアップデートの確認（Verify）に失敗しました。\n再度アップデートを実行してください。"
+END
+
+#endif    // 日本語 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// ニュートラル (システム標準) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUSD)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    ID_MSG_ERR_NOINPUTSLAVE "Error: Invalid Slave Address."
+    ID_MSG_ERR_NOINPUTSUB   "Error: Invalid Sub Address"
+    ID_MSG_ERR_NOINPUTVALUE "Error: Invalid Write Value."
+    ID_MSG_ERR_NOINPUTREADCOUNTS 
+                            "Error: Invalid Read Counts. Set Read Counts more than 0."
+    ID_MSG_ERR_DATASLAVE    "Error: Invalid Slave Address."
+    ID_MSG_ERR_DATASUB      "Error: Invalid Sub Address."
+    ID_MSG_ERR_DATAVALUE    "Error: Invalid Write Value. Alphanumeric and comma are allowable as Write Value."
+    ID_MSG_ERR_DATAREADCOUNTS "Error: Invalid Read Counts. "
+    ID_MSG_ERR_READ         "Read camera register failed.\nRetry or restart the application and board."
+    ID_MSG_ERR_WRITE        "Set camera register failed.\n Retry or restart the application and board."
+    ID_MSG_ERR_INIT         "Initialize camera register failed.\nRetry or restart the application and board."
+    ID_MSG_ERR_SVMSETTINGREAD 
+                            "Read setting from SPI-ROM failed.\nComfirm connection between board and PC."
+    ID_MSG_ERR_SVMSETTINGWRITE 
+                            "Write setting from SPI-ROM failed.\nComfirm connection between board and PC."
+    IDS_MSG_ERR_FX3UPDATE   "Update failed.\nRetry update without disconnecting the board."
+    IDS_MSG_ERR_FX3VERSIONINFO "Failed to get FX3 Version Failed."
+    IDS_MSG_ERR_FX3BOOTDATAREAD 
+                            "Failed to get boot memory information of FX3."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_MSG_ERR_FX3VERIFY   "Failed to verify FX3 update.\nRetry update without disconnecting the board."
+    IDS_MSG_ERR_FPGAUPDATE  "Failed to update FPGA.\nRetry update without disconnecting the board."
+    IDS_MSG_ERR_FPGAVERIFY  "Failed to verify FPGA update.\nRetry update without disconnecting the board."
+END
+
+STRINGTABLE 
+BEGIN
+    ID_MSG_UPDATE_FILEREAD  "Reading setting file..."
+    ID_MSG_UPDATE_DATAWRITE "Applying setting file into camera register."
+    ID_MSG_UPDATE_END       "Completed."
+    IDS_MSG_ERR_NODEVICE    "None"
+    ID_MSG_ERR_NO_SVI03     "Not Found SVM-03, Connect SVM-03 or PowerUp SVM-03"
+    ID_MSG_ERR_FILEOPEN     "Failed to open setting file. Confirm whether the file exists."
+    ID_MSG_ERR_FILEREAD     "Failed to read setting file. Confirm the file format."
+    ID_MSG_FX3UPDATE_DATAWRITE 
+                            "Updating FX3 firmware. Please wait for a while.\n\nDo not disconnect USB cable until next dialog is shown."
+    ID_MSG_FX3UPDATE_END    "Updating FX3 firmware succeeded.\nDisconnect USB cable to restart the board."
+    ID_MSG_FPGAUPDATE_DATAWRITE 
+                            "Updating FPGA. Please wait for a while.\n\nDo not disconnect USB cable until next dialog is shown."
+    ID_MSG_FPGAUPDATE_END   "Updating FPGA succeeded.\nDisconnect USB cable to restart the board."
+    ID_MSG_FX3UPDATE_CONFIRMATION "Click OK to update FX3 Firmware."
+    ID_MSG_FPGAUPDATE_CONFIRMATION "Click OK to update FPGA."
+END
+
+#endif    // ニュートラル (システム標準) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英語 (英国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    ID_MSG_ERR_NOINPUTSLAVE "Error: Invalid Slave Address."
+    ID_MSG_ERR_NOINPUTSUB   "Error: Invalid Sub Address"
+    ID_MSG_ERR_NOINPUTVALUE "Error: Invalid Write Value."
+    ID_MSG_ERR_NOINPUTREADCOUNTS 
+                            "Error: Invalid Read Counts. Set Read Counts more than 0."
+    ID_MSG_ERR_DATASLAVE    "Error: Invalid Slave Address."
+    ID_MSG_ERR_DATASUB      "Error: Invalid Sub Address."
+    ID_MSG_ERR_DATAVALUE    "Error: Invalid Write Value. Alphanumeric and comma are allowable as Write Value."
+    ID_MSG_ERR_DATAREADCOUNTS "Error: Invalid Read Counts. "
+    ID_MSG_ERR_READ         "Read camera register failed.\nRetry or restart the application and board."
+    ID_MSG_ERR_WRITE        "Set camera register failed.\n Retry or restart the application and board."
+    ID_MSG_ERR_INIT         "Initialize camera register failed.\nRetry or restart the application and board."
+    ID_MSG_ERR_SVMSETTINGREAD 
+                            "Read setting from SPI-ROM failed.\nComfirm connection between board and PC."
+    ID_MSG_ERR_SVMSETTINGWRITE 
+                            "Write setting from SPI-ROM failed.\nComfirm connection between board and PC."
+    IDS_MSG_ERR_FX3UPDATE   "Update failed.\nRetry update without disconnecting the board."
+    IDS_MSG_ERR_FX3VERSIONINFO "Failed to get FX3 Version Failed."
+    IDS_MSG_ERR_FX3BOOTDATAREAD 
+                            "Failed to get boot memory information of FX3."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_MSG_ERR_FX3VERIFY   "Failed to verify FX3 update.\nRetry update without disconnecting the board."
+    IDS_MSG_ERR_FPGAUPDATE  "Failed to update FPGA.\nRetry update without disconnecting the board."
+    IDS_MSG_ERR_FPGAVERIFY  "Failed to verify FPGA update.\nRetry update without disconnecting the board."
+END
+
+STRINGTABLE 
+BEGIN
+    ID_MSG_UPDATE_FILEREAD  "Reading setting file..."
+    ID_MSG_UPDATE_DATAWRITE "Applying setting file into camera register."
+    ID_MSG_UPDATE_END       "Completed."
+    IDS_MSG_ERR_NODEVICE    "None"
+    ID_MSG_ERR_NO_SVI03     "Not Found SVM-03, Connect SVM-03 or PowerUp SVM-03"
+    ID_MSG_ERR_FILEOPEN     "Failed to open setting file. Confirm whether the file exists."
+    ID_MSG_ERR_FILEREAD     "Failed to read setting file. Confirm the file format."
+    ID_MSG_FX3UPDATE_DATAWRITE 
+                            "Updating FX3 firmware. Please wait for a while.\n\nDo not disconnect USB cable until next dialog is shown."
+    ID_MSG_FX3UPDATE_END    "Updating FX3 firmware succeeded.\nDisconnect USB cable to restart the board."
+    ID_MSG_FPGAUPDATE_DATAWRITE 
+                            "Updating FPGA. Please wait for a while.\n\nDo not disconnect USB cable until next dialog is shown."
+    ID_MSG_FPGAUPDATE_END   "Updating FPGA succeeded.\nDisconnect USB cable to restart the board."
+    ID_MSG_FX3UPDATE_CONFIRMATION "Click OK to update FX3 Firmware."
+    ID_MSG_FPGAUPDATE_CONFIRMATION "Click OK to update FPGA."
+END
+
+#endif    // 英語 (英国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE 17, 1
+#pragma code_page(932)
+#endif //_WIN32
+#include "res\SVIctl.rc2"  // Microsoft Visual C++ 以外のツールで編集されたリソース
+#include "l.jpn\afxres.rc"          // 標準のコンポーネント
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

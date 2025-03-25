@@ -1,0 +1,9 @@
+; mvs_dll_test.def : DLL のモジュール パラメーターを宣言します。
+
+LIBRARY		svmi2c.dll
+
+EXPORTS
+    ; 明示的なエクスポートはここへ記述できます
+	ShowSettingDialog	@1
+	SendSettingFile		@2
+
