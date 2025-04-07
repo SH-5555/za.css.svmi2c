@@ -32,6 +32,8 @@ CSVIctlDlg::CSVIctlDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	pReadFileThread = NULL;
+
+	AppName = "svmi2c";
 }
 
 void CSVIctlDlg::DoDataExchange(CDataExchange* pDX)
@@ -308,6 +310,204 @@ INT_PTR CSVIctlDlg::DoModal()
 	return CDialog::DoModal();
 }
 
+BOOL CSVIctlDlg::OpenCaptureBoard()
+{
+	//iniファイル内容を適用する
+	IniFileName = "\\" + AppName + ".ini";
+	TCHAR Path[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, Path);
+	IniFileName = Path + IniFileName;
+	CIniFileControl iniFile(AppName, IniFileName);
+
+//	CString windowTitleText = "SVMCtl";
+
+	//	ID_SLAVE_ADDRESS
+	CString slaveAddress = iniFile.GetString(INI_KEY_SLAVE_ADDRESS, DEFAULT_SLAVE_ADDRESS);
+	if (slaveAddress == "") slaveAddress = "1a";
+	//	this->SetDlgItemText(ID_SLAVE_ADDRESS, slaveAddress);
+
+	// ID_SUB_ADDRESS
+	CString subAddress = iniFile.GetString(INI_KEY_SUB_ADDRESS, DEFAULT_SUB_ADDRESS);
+//	this->SetDlgItemText(ID_SUB_ADDRESS, subAddress);
+
+	// ID_VALUE
+	CString value = iniFile.GetString(INI_KEY_VALUE, DEFAULT_VALUE);
+//	this->SetDlgItemText(ID_VALUE, value);
+
+	// ID_READ_COUNTS
+	CString readCounts = iniFile.GetString(INI_KEY_READ_COUNTS, DEFAULT_READ_COUNTS);
+//	this->SetDlgItemText(ID_READ_COUNTS, readCounts);
+
+	// ID_WORD_ADDRESS
+	int wordAddress = iniFile.GetInt(INI_KEY_WORD_ADDRESS, DEFAULT_WORD_ADDRESS);
+//	((CButton*)this->GetDlgItem(ID_WORD_ADDRESS))->SetCheck(wordAddress);
+
+	// [15/05/25] Get FW Version
+	{
+		//strcpy(g_boardName, "(Unknown Device)");
+		//if (IsBoardSelected() == false) {
+		//	windowTitleText += " -[No Device]";
+		//	this->SetWindowTextA(windowTitleText);
+		//	m_cButtonSetting.EnableWindow(FALSE); //
+		//}
+		UCHAR buf[10];
+		UCHAR versionInfo[4];
+
+#define VIDEO_ID_MAX 8
+		// 複数台の SVM を検出
+		if (1) {
+			int maxIndex = 1;
+			int curIndex = 0;
+			int i;
+			int boardType = 0, boardIdx = 0;
+			int boardIdxList[VIDEO_ID_MAX] = { 0 };
+			char boardName[VIDEO_ID_MAX][128];
+			//int boardCnt = m_sviUsbControl.ScanBoard();
+			for (i = 0; i < VIDEO_ID_MAX; i++) {
+				m_sviUsbControl.SetDeviceIndex(boardIdx);
+				if (m_sviUsbControl.open() == false) {
+					// [18/07/31]
+					if (boardType == 0) {
+						// Switch SVM -> SVO
+						boardType = 1;
+						boardIdx = 0;
+						m_sviUsbControl.SetBoardType(boardType);
+						m_sviUsbControl.SetDeviceIndex(boardIdx);
+						if (m_sviUsbControl.open() == false) {
+							break;
+						}
+					}
+					else {
+						break;
+					}
+				}
+				m_sviUsbControl.close();
+				boardIdxList[i] = (boardType << 8) | boardIdx;
+				boardIdx++;
+
+				if (m_sviUsbControl.SVMVersionInfo(sizeof(versionInfo), versionInfo) == true) {
+
+					// Custom Code
+					UCHAR customCode[4] = { 0,0,0,0 }; // first -> fourth
+					{
+						UCHAR buf[4];
+						if (!(versionInfo[1] <= 1 && versionInfo[2] == 0))// not v1.00
+						{
+							m_sviUsbControl.GetValue(0x08, 0x080000D0, buf, 4, FALSE, FALSE);
+							customCode[0] = buf[3];
+							m_sviUsbControl.GetValue(0x08, 0x080000D4, buf, 4, FALSE, FALSE);
+							customCode[1] = buf[3];
+						}
+					}
+					GetBoardNameFromCC(boardName[i], customCode, versionInfo, i);
+
+				}
+				else {
+					sprintf(boardName[i], "%d: Unknown board", i);
+				}
+				maxIndex = i + 1;
+
+			}
+
+			// 選択
+			//if (maxIndex > 1) {
+			//	CSelBoardDlg dlg;
+			//	for (i = 0; i < maxIndex; i++) {
+			//		dlg.AppendBoardName(boardName[i]);
+			//	}
+			//	if (dlg.DoModal() == IDOK) {
+			//		curIndex = dlg.m_curBoardIdx;
+			//	}
+			//}
+
+			// [18/07/31] Modified
+			if (curIndex > VIDEO_ID_MAX) curIndex = 0;
+			m_sviUsbControl.SetBoardType(boardIdxList[curIndex] >> 8);
+			m_sviUsbControl.SetDeviceIndex(boardIdxList[curIndex] & 0xFF);
+		}
+
+		Sleep(100);
+
+		if (m_sviUsbControl.SVMVersionInfo(sizeof(versionInfo), versionInfo) == true)
+		{
+			char titleText[512];
+			int fwVersion = versionInfo[0];
+			int fpgaVersion = versionInfo[1];
+			int fpgaVersion2 = versionInfo[2];
+
+			// Custom Code
+			UCHAR customCode[4] = { 0,0,0,0 }; // first -> fourth
+			{
+				UCHAR buf[4];
+				if (!(fpgaVersion <= 1 && fpgaVersion2 == 0)) { // not v1.00
+					m_sviUsbControl.GetValue(0x08, 0x080000D0, buf, 4, FALSE, FALSE);
+					customCode[0] = buf[3];
+					m_sviUsbControl.GetValue(0x08, 0x080000D4, buf, 4, FALSE, FALSE);
+					customCode[1] = buf[3];
+				}
+			}
+			UpdateBoardInfoFromCC(customCode, versionInfo);
+
+			//sprintf(titleText, "%s [%s]", windowTitleText, g_boardName);
+
+			// USB version
+#if (USE_USB_VERSION)
+			CGetUSBVersion usbVersion;
+			// VID/PID [18/03/01] Currently not supported for VID 0x2FA3
+			int bcdUsb = usbVersion.GetUSBVersion(SVM_PID, SVM_VID);
+			if (bcdUsb > 100) {
+				char buf2[64];
+				sprintf(buf2, "(USB%d.%d)", bcdUsb >> 8, bcdUsb & 0xFF);
+				strcat(titleText, buf2);
+			}
+			else {
+				strcat(titleText, "(USB?.?)");
+				// Error
+				MessageBoxA("Warning: Software can't get USB Version.");
+			}
+#endif
+			//this->SetWindowTextA(titleText);
+
+			if (IS_SVO09() || IS_SVO_MIPI())
+			{
+				m_cButtonSetting.EnableWindow(FALSE); //
+
+				CWnd* pWindow;
+				pWindow = GetDlgItem(ID_BOARD_POWER);
+				if (pWindow) pWindow->EnableWindow(FALSE);
+			}
+		}
+		else {
+			//char titleText[512];
+			//sprintf(titleText, "%s +[No Device]", windowTitleText);
+			//this->SetWindowTextA(titleText);
+			//m_cButtonSetting.EnableWindow(FALSE); //
+
+			//m_cButtonSFR.EnableWindow(FALSE);
+			//m_cButtonRead.EnableWindow(FALSE);
+			//m_cButtonWrite.EnableWindow(FALSE);
+			//m_cButtonRestart.EnableWindow(FALSE);
+
+			//{
+			//	CWnd* pWindow;
+			//	pWindow = GetDlgItem(IDC_SVMINFO);
+			//	if (pWindow) pWindow->EnableWindow(FALSE);
+
+			//	pWindow = GetDlgItem(ID_BOARD_POWER);
+			//	if (pWindow) pWindow->EnableWindow(FALSE);
+			//}
+			return FALSE;
+		}
+
+	}
+
+	/// S.H Test
+	//m_cButtonSFR.EnableWindow(TRUE);
+
+
+	return TRUE;  // TRUE を返すとコントロールに設定したフォーカスは失われません。
+}
+
 BOOL CSVIctlDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -318,7 +518,7 @@ BOOL CSVIctlDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 小さいアイコンを設定
 
 	//iniファイル内容を適用する
-	AppName = AfxGetAppName();
+//	AppName = AfxGetAppName();
 	IniFileName = "\\" + AppName + ".ini";
 	TCHAR Path[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH,Path);
@@ -569,9 +769,105 @@ int CSVIctlDlg::ParseCsv(CString strData, UCHAR* workBuf, ULONG bufSize/*vector<
 	return count;
 }
 
+int CSVIctlDlg::WriteReg(ULONG devAddr, ULONG regAddr, UCHAR regVal)
+{
+//	CButton* pCheck = (CButton*)GetDlgItem(ID_WORD_ADDRESS);
+	UCHAR rcvBuf[1024];
+//	ULONG deviceAddr, registorAddr;
+	CString strText;
+	char* temp;
+
+	// 選択されているSVI-03ボードを設定します
+	if (IsBoardSelected() == false)
+	{
+		AfxMessageBox("BoardNotSelected");
+		return -5;
+	}
+
+	// 設定値の取得
+	// Slave Addressの取得
+	//GetDlgItemText(ID_SLAVE_ADDRESS, strText);
+	//strText.TrimLeft();
+	//strText.TrimRight();
+	//if (strText.GetLength() == 0)
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSLAVE);
+	//	return;
+	//}
+	//if (!CSVIctlDlg::Checkalnum((LPCTSTR)strText))
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_DATASLAVE);
+	//	return;
+	//}
+
+	//deviceAddr = devAddr;
+
+	// SubAddressの取得
+	//GetDlgItemText(ID_SUB_ADDRESS, strText);
+	//strText.TrimLeft();
+	//strText.TrimRight();
+	//if (strText.GetLength() == 0)
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSUB);
+	//	return;
+	//}
+	//if (!Checkalnum((LPCTSTR)strText))
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSUB);
+	//	return;
+	//}
+	//regAddr = _tcstoul(strText, &temp, 16);
+
+	// Valueの取得
+	//GetDlgItemText(ID_VALUE, strText);
+	//strText = strVals;
+	//strText.TrimLeft();
+	//strText.TrimRight();
+	//if (strText.GetLength() == 0)
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_NOINPUTVALUE);
+	//	return -3;
+	//}
+	//if (!Checkalnum((LPCTSTR)strText, true))
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_DATAVALUE);
+	//	return -4;
+	//}
+
+	if (devAddr == 0x08) {
+		ULONG ulVal;
+		sscanf_s(strText, "%x", &ulVal);
+		BYTE bVal[16];
+		bVal[0] = (BYTE)((ulVal >> 24) & 0xff);
+		bVal[1] = (BYTE)((ulVal >> 16) & 0xff);
+		bVal[2] = (BYTE)((ulVal >> 8) & 0xff);
+		bVal[3] = (BYTE)((ulVal >> 0) & 0xff);
+		// カメラレジスタの設定
+		if (!m_sviUsbControl.SetValue(devAddr, regAddr, bVal, 4, false))
+		{
+			AfxMessageBox(ID_MSG_ERR_WRITE);
+			return -1;
+		}
+	}
+	else {
+		// カンマをパースし、rcvBufに設定
+		//int dataSize = ParseCsv(strText, rcvBuf, sizeof(rcvBuf));
+		//if (dataSize == 0) return -2;
+
+		// カメラレジスタの設定
+		//if (!m_sviUsbControl.SetValue(devAddr, regAddr, rcvBuf, dataSize, pCheck->GetCheck()))
+		if (!m_sviUsbControl.SetValue(devAddr, regAddr, &regVal, 1, true))
+		{
+			AfxMessageBox(ID_MSG_ERR_WRITE);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 void CSVIctlDlg::OnWrite()
 {
-
 	CButton *pCheck = (CButton *)GetDlgItem(ID_WORD_ADDRESS);
 	UCHAR rcvBuf[1024];
 	ULONG deviceAddr, regAddr;
@@ -759,12 +1055,23 @@ void CSVIctlDlg::OnRead()
 	pEdit->LineScroll(pEdit->GetLineCount());
 }
 
-void CSVIctlDlg::SettingFileWrite(char *fileName)
+int CSVIctlDlg::SettingFileWrite(char *fileName)
 {
 	strRecDataFileName = fileName;
 	pReadFileThread = AfxBeginThread(ReadFileThread, this);
 	// スレッド立ち上げ中は表示しつづける。
-	MsgDialog.DoModal(ID_MSG_UPDATE_DATAWRITE);
+//	MsgDialog.DoModal(ID_MSG_UPDATE_DATAWRITE);
+	pReadFileThread->m_bAutoDelete = FALSE;
+
+	if (pReadFileThread != NULL)
+	{
+		WaitForSingleObject(pReadFileThread, INFINITE);
+		delete(pReadFileThread);
+		pReadFileThread = NULL;
+
+		return this->m_ThreadReturn;
+	}
+	else return -1;
 }
 
 void CSVIctlDlg::OnSettingFileWrite()
@@ -774,7 +1081,7 @@ void CSVIctlDlg::OnSettingFileWrite()
 	// バッファクリア
 	//rcvBuf.clear();
 
-	CString AppName = "SVMCtl_I2C"; // AfxGetAppName();
+//	CString AppName = "SVMCtl_I2C"; // AfxGetAppName();
 	CString IniFileName = "\\" + AppName + ".ini";
 	TCHAR Path[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, Path);
@@ -784,7 +1091,7 @@ void CSVIctlDlg::OnSettingFileWrite()
 	CString lastFileName = iniFile.GetString("SettingFileName", "");
 
 	// ファイルの読込処理
-	char szFilter[] = STR_FILE_INIFILTER;
+	char szFilter[sizeof(STR_FILE_INIFILTER)+2] = STR_FILE_INIFILTER;
 	// ファイルの指定を行う
 	CFileDialog dlg(TRUE, NULL, lastFileName,
 						OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR,
@@ -856,10 +1163,13 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 	unsigned long ulFileLen;
 	CFile file;
 
+	pMainWnd->m_ThreadReturn = 0;
+
 	pMainWnd->GetDlgItemText(ID_DUMP_VALUE, readValueText);
 
 	if((pMainWnd->m_sviUsbControl).open() == false){
 		AfxMessageBox(ID_MSG_ERR_NO_SVI03);
+		pMainWnd->m_ThreadReturn = 1;
 		goto readfile_end;
 	}
 
@@ -871,11 +1181,13 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 	if(strText.GetLength()==0)
 	{
 		AfxMessageBox(ID_MSG_ERR_NOINPUTSLAVE);
+		pMainWnd->m_ThreadReturn = 2;
 		goto readfile_end;
 	}
 	if(!pMainWnd->Checkalnum((LPCTSTR)strText))
 	{
 		AfxMessageBox(ID_MSG_ERR_DATASLAVE);
+		pMainWnd->m_ThreadReturn = 3;
 		goto readfile_end;
 	}
 
@@ -887,6 +1199,7 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 							CFile::typeBinary))
 	{
 		AfxMessageBox(ID_MSG_ERR_FILEOPEN);
+		pMainWnd->m_ThreadReturn = 4;
 		goto readfile_end;
 	}
 
@@ -901,6 +1214,7 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 	// 正常に読み込めなかったらエラー
 	if(strValue.GetLength()==0){
 		AfxMessageBox(ID_MSG_ERR_FILEREAD);
+		pMainWnd->m_ThreadReturn = 5;
 		goto readfile_end;
 	}
 
@@ -996,6 +1310,7 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 					::MessageBoxA(NULL, text, "Error (incomplete READ command)", MB_OK);
 				}
 				AfxMessageBox(ID_MSG_ERR_INIT);
+				pMainWnd->m_ThreadReturn = 6;
 				goto readfile_end;
 			}
 			else
@@ -1009,6 +1324,7 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 					sprintf(text, "Line %d: %s", lineCnt, lineBuf);
 					::MessageBoxA(NULL, text, "Error (Read count is 0)", MB_OK);
 					AfxMessageBox(ID_MSG_ERR_INIT);
+					pMainWnd->m_ThreadReturn = 6;
 					goto readfile_end;
 				}
 				else
@@ -1026,6 +1342,7 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 							::MessageBoxA(NULL, text, "I2C Read Error", MB_OK);
 						}
 						AfxMessageBox(ID_MSG_ERR_INIT);
+						pMainWnd->m_ThreadReturn = 6;
 						delete [] readBuf;
 						goto readfile_end;
 					}
@@ -1056,6 +1373,7 @@ UINT CSVIctlDlg::ReadFileThread(LPVOID pMain)
 							::MessageBoxA(NULL, text, "I2C Write Error", MB_OK);
 						}
 						AfxMessageBox(ID_MSG_ERR_INIT);
+						pMainWnd->m_ThreadReturn = 6;
 						delete [] sendBuf;
 						goto readfile_end;
 					}
@@ -1082,6 +1400,7 @@ readfile_end:
 		goto readfile_end;
 	}
 
+	pMainWnd->EndDialog(0);
 	return 0;
 
 }

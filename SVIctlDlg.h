@@ -154,9 +154,13 @@ public:
 	afx_msg void OnBnClickedRestartSvm();
 	CButton m_cButtonRestart;
 
-	void SettingFileWrite(char *fileNama);
+	BOOL OpenCaptureBoard();
+	int SettingFileWrite(char *fileNama);
+	int WriteReg(ULONG devAddr, ULONG regAddr, UCHAR regVal);
 
 	virtual INT_PTR DoModal();
+
+	int m_ThreadReturn;
 
 };
 

@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 日本語 resources
+// 日本語 (日本) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
-#ifdef _WIN32
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 #pragma code_page(932)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +65,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\SVIctl.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -135,8 +134,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,2,2,1
- PRODUCTVERSION 1,2,2,1
+ FILEVERSION 0,9,1,0
+ PRODUCTVERSION 0,9,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -153,12 +152,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Net Vision Corporation"
             VALUE "FileDescription", "SVMCtl_I2C Application"
-            VALUE "FileVersion", "1.2.2.1"
+            VALUE "FileVersion", "0.9.1.0"
             VALUE "InternalName", "SVMctl"
             VALUE "LegalCopyright", "Copyright (C) 2014-2021 Net Vision Corporation"
             VALUE "OriginalFilename", "SVMctl.exe"
             VALUE "ProductName", "SVMctl Application"
-            VALUE "ProductVersion", "1.2.2.1"
+            VALUE "ProductVersion", "0.9.1.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -174,7 +173,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_SVICTL_DIALOG, DIALOG
     BEGIN
@@ -218,12 +217,13 @@ END
 
 IDB_BITMAP1             BITMAP                  "clipping.bmp"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_MSG_ERR_NOINPUTSLAVE "Slave Addressが未設定です。設定してください。"
     ID_MSG_ERR_NOINPUTSUB   "Sub Addressが未設定です。設定してください。"
@@ -245,7 +245,7 @@ BEGIN
     IDS_MSG_ERR_FX3BOOTDATAREAD "FX3のブートメモリ情報の取得に失敗しました。\n再度実行してください。"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_MSG_UPDATE_FILEREAD  "設定ファイルを読み込み中です。"
     ID_MSG_UPDATE_DATAWRITE "設定ファイル内容をカメラレジスタへ反映中です"
@@ -264,14 +264,14 @@ BEGIN
     ID_MSG_FPGAUPDATE_CONFIRMATION "FPGAファームウェアをアップデートします。\nよろしいですか？"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_MSG_ERR_FX3VERIFY   "FX3のアップデートの確認（Verify）に失敗しました。\n再度アップデートを実行してください。"
     IDS_MSG_ERR_FPGAUPDATE  "FPGAのアップデートに失敗しました。\n再度アップデートを実行してください。"
     IDS_MSG_ERR_FPGAVERIFY  "FPGAのアップデートの確認（Verify）に失敗しました。\n再度アップデートを実行してください。"
 END
 
-#endif    // 日本語 resources
+#endif    // 日本語 (日本) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -279,17 +279,15 @@ END
 // ニュートラル (システム標準) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUSD)
-#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 #pragma code_page(932)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_MSG_ERR_NOINPUTSLAVE "Error: Invalid Slave Address."
     ID_MSG_ERR_NOINPUTSUB   "Error: Invalid Sub Address"
@@ -313,14 +311,14 @@ BEGIN
                             "Failed to get boot memory information of FX3."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_MSG_ERR_FX3VERIFY   "Failed to verify FX3 update.\nRetry update without disconnecting the board."
     IDS_MSG_ERR_FPGAUPDATE  "Failed to update FPGA.\nRetry update without disconnecting the board."
     IDS_MSG_ERR_FPGAVERIFY  "Failed to verify FPGA update.\nRetry update without disconnecting the board."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_MSG_UPDATE_FILEREAD  "Reading setting file..."
     ID_MSG_UPDATE_DATAWRITE "Applying setting file into camera register."
@@ -344,20 +342,18 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// 英語 (英国) resources
+// 英語 (イギリス) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_MSG_ERR_NOINPUTSLAVE "Error: Invalid Slave Address."
     ID_MSG_ERR_NOINPUTSUB   "Error: Invalid Sub Address"
@@ -381,14 +377,14 @@ BEGIN
                             "Failed to get boot memory information of FX3."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_MSG_ERR_FX3VERIFY   "Failed to verify FX3 update.\nRetry update without disconnecting the board."
     IDS_MSG_ERR_FPGAUPDATE  "Failed to update FPGA.\nRetry update without disconnecting the board."
     IDS_MSG_ERR_FPGAVERIFY  "Failed to verify FPGA update.\nRetry update without disconnecting the board."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_MSG_UPDATE_FILEREAD  "Reading setting file..."
     ID_MSG_UPDATE_DATAWRITE "Applying setting file into camera register."
@@ -407,7 +403,7 @@ BEGIN
     ID_MSG_FPGAUPDATE_CONFIRMATION "Click OK to update FPGA."
 END
 
-#endif    // 英語 (英国) resources
+#endif    // 英語 (イギリス) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

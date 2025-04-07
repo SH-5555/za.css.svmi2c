@@ -6,4 +6,5 @@ EXPORTS
     ; 明示的なエクスポートはここへ記述できます
 	ShowSettingDialog	@1
 	SendSettingFile		@2
+	WriteRegValue		@3
 

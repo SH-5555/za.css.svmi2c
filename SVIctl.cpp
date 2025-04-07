@@ -56,7 +56,7 @@ BOOL CSVIctlApp::InitInstance()
 
 	CSVIctlDlg dlg;
 	m_pMainWnd = &dlg;
-	int nResponse = dlg.DoModal();
+	INT_PTR nResponse = dlg.DoModal();
 
 	if (nResponse == IDOK)
 	{
@@ -110,15 +110,15 @@ void WINAPI ShowSettingDialog()
 	AFX_MANAGE_STATE(AfxGetStaticModuleState( ));
 
 	CSVIctlDlg dlg;
-	int nResponse = dlg.DoModal();
+	INT_PTR nResponse = dlg.DoModal();
 }
 
 int WINAPI SendSettingFile(char *filePath)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	CSVIctlDlg *dlg;
-	dlg = new CSVIctlDlg();
+	CSVIctlDlg *dlg = new CSVIctlDlg();
+//	dlg = new CSVIctlDlg();
 
 	BOOL ret = dlg->Create(IDD_SVICTL_DIALOG, NULL);
 	if (!ret) //Create failed.
@@ -128,8 +128,25 @@ int WINAPI SendSettingFile(char *filePath)
 	}
 
 	dlg->ShowWindow(SW_HIDE/*SW_SHOW*/);
-	dlg->SettingFileWrite(filePath);
+	int result = dlg->SettingFileWrite(filePath);
 	dlg->CloseWindow();
 
-	return 0;
+	return result;
+}
+
+int WINAPI WriteRegValue(ULONG devAddr, ULONG regAddr, UCHAR regVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	CSVIctlDlg* dlg = new CSVIctlDlg();
+
+	BOOL ret = dlg->OpenCaptureBoard(); //  Create(IDD_SVICTL_DIALOG, NULL);
+	if (!ret) //Create failed.
+	{
+		AfxMessageBox(_T("Error creating Dialog"));
+		return -1;
+	}
+
+	int result = dlg->WriteReg(devAddr, regAddr, regVal);
+
+	return result;
 }
