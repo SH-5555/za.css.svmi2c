@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by SVIctl.rc
+// Microsoft Visual C++ で生成されたインクルード ファイル。
+// SVIctl.rc で使用
 //
 #define IDD_SVICTL_DIALOG               102
 #define IDR_MAINFRAME                   128

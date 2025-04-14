@@ -110,7 +110,7 @@ protected:
 	//スレッド関数
 	CWinThread *pReadFileThread;
 	static UINT CSVIctlDlg::ReadFileThread(LPVOID pMain);
-
+	static UINT CSVIctlDlg::XferFileThread(LPVOID pMain);
 
 	//iniファイルで使用
 	CString AppName;//アプリケーション名
@@ -155,6 +155,7 @@ public:
 	CButton m_cButtonRestart;
 
 	BOOL OpenCaptureBoard();
+	int SettingFileWriteNoUI(char* fileNama);
 	int SettingFileWrite(char *fileNama);
 	int WriteReg(ULONG devAddr, ULONG regAddr, UCHAR regVal);
 

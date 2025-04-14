@@ -54,7 +54,7 @@ void CMsgDialog::OnCancel()
 BOOL CMsgDialog::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	
+
 	// TODO: この位置に初期化の補足処理を追加してください
 	SetDlgItemText(IDC_MSG,strMsg);	
 
@@ -66,8 +66,18 @@ int CMsgDialog::DoModal(UINT UID)
 {
 	// TODO: この位置に固有の処理を追加するか、または基本クラスを呼び出してください
 	strMsg.LoadString(UID);
-	
+
+#if 0
 	return (int)CDialog::DoModal();
+#else
+	Create(IDD_MSG_DIALOG, NULL);
+	ShowWindow(SW_HIDE);
+	int ret = RunModalLoop();
+	CloseWindow();
+	DestroyWindow();
+	return ret;
+#endif
+
 }
 
 void CMsgDialog::OnClose() 

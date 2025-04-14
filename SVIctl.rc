@@ -106,7 +106,7 @@ IDD_MSG_DIALOG DIALOGEX 0, 0, 151, 76
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 9, "‚l‚r ‚oƒSƒVƒbƒN", 0, 0, 0x0
 BEGIN
-    LTEXT           "Static",IDC_MSG,7,7,137,62
+    LTEXT           "Static",IDC_MSG,7,6,137,63
 END
 
 IDD_SELECT_DIALOG DIALOGEX 0, 0, 172, 104
@@ -134,8 +134,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,1,0
- PRODUCTVERSION 0,9,1,0
+ FILEVERSION 0,10,1,0
+ PRODUCTVERSION 0,10,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -152,12 +152,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Net Vision Corporation"
             VALUE "FileDescription", "SVMCtl_I2C Application"
-            VALUE "FileVersion", "0.9.1.0"
+            VALUE "FileVersion", "0.10.1.0"
             VALUE "InternalName", "SVMctl"
             VALUE "LegalCopyright", "Copyright (C) 2014-2021 Net Vision Corporation"
             VALUE "OriginalFilename", "SVMctl.exe"
             VALUE "ProductName", "SVMctl Application"
-            VALUE "ProductVersion", "0.9.1.0"
+            VALUE "ProductVersion", "0.10.1.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -187,7 +187,7 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 144
-        TOPMARGIN, 7
+        TOPMARGIN, 6
         BOTTOMMARGIN, 69
     END
 
@@ -216,6 +216,17 @@ END
 //
 
 IDB_BITMAP1             BITMAP                  "clipping.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_MSG_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////

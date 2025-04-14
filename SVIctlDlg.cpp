@@ -319,12 +319,9 @@ BOOL CSVIctlDlg::OpenCaptureBoard()
 	IniFileName = Path + IniFileName;
 	CIniFileControl iniFile(AppName, IniFileName);
 
-//	CString windowTitleText = "SVMCtl";
-
 	//	ID_SLAVE_ADDRESS
 	CString slaveAddress = iniFile.GetString(INI_KEY_SLAVE_ADDRESS, DEFAULT_SLAVE_ADDRESS);
 	if (slaveAddress == "") slaveAddress = "1a";
-	//	this->SetDlgItemText(ID_SLAVE_ADDRESS, slaveAddress);
 
 	// ID_SUB_ADDRESS
 	CString subAddress = iniFile.GetString(INI_KEY_SUB_ADDRESS, DEFAULT_SUB_ADDRESS);
@@ -470,11 +467,11 @@ BOOL CSVIctlDlg::OpenCaptureBoard()
 
 			if (IS_SVO09() || IS_SVO_MIPI())
 			{
-				m_cButtonSetting.EnableWindow(FALSE); //
+				//m_cButtonSetting.EnableWindow(FALSE); //
 
-				CWnd* pWindow;
-				pWindow = GetDlgItem(ID_BOARD_POWER);
-				if (pWindow) pWindow->EnableWindow(FALSE);
+				//CWnd* pWindow;
+				//pWindow = GetDlgItem(ID_BOARD_POWER);
+				//if (pWindow) pWindow->EnableWindow(FALSE);
 			}
 		}
 		else {
@@ -1055,23 +1052,56 @@ void CSVIctlDlg::OnRead()
 	pEdit->LineScroll(pEdit->GetLineCount());
 }
 
-int CSVIctlDlg::SettingFileWrite(char *fileName)
+int CSVIctlDlg::SettingFileWriteNoUI(char* fileName)
 {
+	int result = 0;
+
 	strRecDataFileName = fileName;
-	pReadFileThread = AfxBeginThread(ReadFileThread, this);
-	// スレッド立ち上げ中は表示しつづける。
-//	MsgDialog.DoModal(ID_MSG_UPDATE_DATAWRITE);
-	pReadFileThread->m_bAutoDelete = FALSE;
+	pReadFileThread = AfxBeginThread(XferFileThread, this, THREAD_PRIORITY_NORMAL, 256 * 1024, CREATE_SUSPENDED);
+	if (pReadFileThread != NULL)
+	{
+		pReadFileThread->m_pMainWnd = this;
+		pReadFileThread->m_bAutoDelete = FALSE;
+		pReadFileThread->ResumeThread();
+		DWORD res = WaitForSingleObject(pReadFileThread->m_hThread, 10000);
+		if (res == WAIT_TIMEOUT)
+		{
+			result = -3;
+		}
+		delete pReadFileThread;
+		pReadFileThread = NULL;
+		result = m_ThreadReturn;
+	}
+	else result = -2;
+
+	return result;
+}
+
+int CSVIctlDlg::SettingFileWrite(char* fileName)
+{
+	int result = 0;
+
+	strRecDataFileName = fileName;
+	pReadFileThread = AfxBeginThread(ReadFileThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 
 	if (pReadFileThread != NULL)
 	{
-		WaitForSingleObject(pReadFileThread, INFINITE);
-		delete(pReadFileThread);
+		pReadFileThread->m_pMainWnd = this;
+		pReadFileThread->m_bAutoDelete = FALSE;
+		pReadFileThread->ResumeThread();
+		MsgDialog.DoModal(ID_MSG_UPDATE_DATAWRITE);
+		DWORD res = WaitForSingleObject(pReadFileThread->m_hThread, 10000);
+		if (res == WAIT_TIMEOUT)
+		{
+			result = -3;
+		}
+		delete pReadFileThread;
 		pReadFileThread = NULL;
-
-		return this->m_ThreadReturn;
+		result = m_ThreadReturn;
 	}
-	else return -1;
+	else result = -2;
+
+	return result;
 }
 
 void CSVIctlDlg::OnSettingFileWrite()
@@ -1402,8 +1432,290 @@ readfile_end:
 
 	pMainWnd->EndDialog(0);
 	return 0;
-
 }
+
+UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
+{
+	CSVIctlDlg* pMainWnd = (CSVIctlDlg*)pMain;
+//	CButton* pCheck = (CButton*)pMainWnd->GetDlgItem(ID_WORD_ADDRESS);
+	int wordMode = 0; //pCheck->GetCheck();
+
+	ULONG			deviceAddr;
+	ULONG			regAddr;
+	UCHAR* rcvWorkBuff = NULL;
+	UCHAR			lineBuf[16 * 1024];
+	CString			strText;
+	CString			strValue;
+
+	char* temp;
+	ULONG lwork;
+	PTCHAR pStopstring;
+	CString strWork, readValueText;
+	// Flags
+	int unit_f = 0;
+	int wt_f = 0;
+	int slave_f = 0;
+	int read_f = 0;
+	int unit = 16;
+	int wt = 0;
+
+	int fpos = 0;
+	int bpos = 0;
+	int i, j;
+
+	char itemBuf[2560];
+	vector<ULONG> ulItem;
+	//ULONG ulItem[200];
+	unsigned long ulFileLen;
+	CFile file;
+
+	pMainWnd->m_ThreadReturn = 0;
+
+	//pMainWnd->GetDlgItemText(ID_DUMP_VALUE, readValueText);
+
+	if ((pMainWnd->m_sviUsbControl).open() == false) {
+		AfxMessageBox(ID_MSG_ERR_NO_SVI03);
+		pMainWnd->m_ThreadReturn = 1;
+		goto readfile_end;
+	}
+
+	// 設定値の取得
+	// Slave Addressの取得
+	//pMainWnd->GetDlgItemText(ID_SLAVE_ADDRESS, strText);
+	//strText.TrimLeft();
+	//strText.TrimRight();
+	//if (strText.GetLength() == 0)
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSLAVE);
+	//	pMainWnd->m_ThreadReturn = 2;
+	//	goto readfile_end;
+	//}
+	//if (!pMainWnd->Checkalnum((LPCTSTR)strText))
+	//{
+	//	AfxMessageBox(ID_MSG_ERR_DATASLAVE);
+	//	pMainWnd->m_ThreadReturn = 3;
+	//	goto readfile_end;
+	//}
+
+	deviceAddr = _tcstoul("1a", &temp, 16);
+
+	if (!file.Open(pMainWnd->strRecDataFileName,
+		CFile::modeRead |
+		CFile::shareExclusive |
+		CFile::typeBinary))
+	{
+		AfxMessageBox(ID_MSG_ERR_FILEOPEN);
+		pMainWnd->m_ThreadReturn = 4;
+		goto readfile_end;
+	}
+
+	// ファイル読み込み(カンマ区切り形式)
+	ulFileLen = file.GetLength();
+	rcvWorkBuff = new UCHAR[ulFileLen + 2];
+	file.Read(rcvWorkBuff, ulFileLen);
+	rcvWorkBuff[ulFileLen++] = '\0';// [21/04/06] avoid fail for reading last line
+	strValue = rcvWorkBuff;
+	file.Close();
+
+	// 正常に読み込めなかったらエラー
+	if (strValue.GetLength() == 0) {
+		AfxMessageBox(ID_MSG_ERR_FILEREAD);
+		pMainWnd->m_ThreadReturn = 5;
+		goto readfile_end;
+	}
+
+	int lineCnt = 0;
+	// ファイル解析＆I2C送信
+	while (fpos < ulFileLen)
+	{
+		// 1行を取得
+		for (bpos = 0; fpos < ulFileLen; fpos++)
+		{
+			if (rcvWorkBuff[fpos] == '\r' && rcvWorkBuff[fpos + 1] == '\n')
+			{
+				lineBuf[bpos++] = '\0';
+				lineCnt++;
+				fpos += 2;
+				break;
+			}
+			else if (rcvWorkBuff[fpos] == '\r' || rcvWorkBuff[fpos] == '\n' || rcvWorkBuff[fpos] == '\0') // [21/04/06] avoid fail for reading last line
+			{
+				lineBuf[bpos++] = '\0';
+				lineCnt++;
+				fpos += 1;
+				break;
+			}
+			lineBuf[bpos++] = rcvWorkBuff[fpos];
+		}
+		// コメント行（先頭カラムが'#'か';'）だったらスキップ
+		if (lineBuf[0] == '#' || lineBuf[0] == ';' || lineBuf[0] == '\0' || lineBuf[0] == '/') continue;
+		// 1行を解析
+		ulItem.clear();
+		for (i = j = 0;i < bpos;i++)
+		{
+			// 行中のアイテム抽出
+			if (lineBuf[i] == ',' ||
+				lineBuf[i] == ' ' ||
+				lineBuf[i] == '\t' ||
+				lineBuf[i] == ';' ||
+				lineBuf[i] == '#' ||
+				lineBuf[i] == '\0')
+			{
+
+				char* temp;
+				// 制御文（"UNIT","WT","SLAVE"）だったら制御処理を行う
+				itemBuf[j++] = '\0';
+
+				if (_tcsncmp(itemBuf, "UNIT", 4) == 0) unit_f = 1;
+				else if (_tcsncmp(itemBuf, "BYTE", 4) == 0) wordMode = 0;
+				else if (_tcsncmp(itemBuf, "WORD", 4) == 0) wordMode = 1;
+				else if (_tcsncmp(itemBuf, "wt", 2) == 0) wt_f = 1;
+				else if (_tcsncmp(itemBuf, "WT", 2) == 0) wt_f = 1;
+				else if (_tcsncmp(itemBuf, "SLAVE", 5) == 0) slave_f = 1;
+				else if (_tcsncmp(itemBuf, "READ", 4) == 0) read_f = 1;
+				else {
+					if (unit_f != 0) {
+						unit = strtol(itemBuf, &temp, 10);
+						unit_f = 0;
+					}
+					else if (wt_f != 0) {
+						wt = strtol(itemBuf, &temp, unit); // [17/12/06] unit should be 10 but this inherites old version...
+						Sleep(wt);
+						wt_f = 0;
+					}
+					else if (slave_f != 0) {
+						deviceAddr = strtol(itemBuf, &temp, unit);
+						slave_f = 0;
+					}
+					else if (read_f != 0) {
+						if (ulItem.size() == 1) { // 2nd content
+							ulItem.push_back(strtoul(itemBuf, &temp, 10));
+						}
+						else {
+							ulItem.push_back(strtoul(itemBuf, &temp, unit));
+						}
+					}
+					else {
+						if (itemBuf[0] != '\0')
+						{
+							ulItem.push_back(strtoul(itemBuf, &temp, unit));
+						}
+					}
+				}
+				j = 0;
+				if (lineBuf[i] == ';' || lineBuf[i] == '#' || lineBuf[i] == '\0') break;
+			}
+			else {
+				itemBuf[j++] = lineBuf[i];
+			}
+		}
+
+		if (read_f) // READ コマンド実行
+		{
+			read_f = 0;
+			if (ulItem.size() != 2) // READ コマンドが不完全
+			{
+				{
+					// debug msg
+					char text[512];
+					sprintf(text, "Line %d: %s", lineCnt, lineBuf);
+					::MessageBoxA(NULL, text, "Error (incomplete READ command)", MB_OK);
+				}
+				AfxMessageBox(ID_MSG_ERR_INIT);
+				pMainWnd->m_ThreadReturn = 6;
+				goto readfile_end;
+			}
+			else
+			{
+				regAddr = ulItem[0];
+				ULONG readSize = ulItem[1];
+
+				if (readSize == 0)
+				{
+					char text[512];
+					sprintf(text, "Line %d: %s", lineCnt, lineBuf);
+					::MessageBoxA(NULL, text, "Error (Read count is 0)", MB_OK);
+					AfxMessageBox(ID_MSG_ERR_INIT);
+					pMainWnd->m_ThreadReturn = 6;
+					goto readfile_end;
+				}
+				else
+				{
+					BYTE* readBuf = new BYTE[readSize];
+
+					bool result = (pMainWnd->m_sviUsbControl).GetValue2(deviceAddr, regAddr, readBuf, readSize, wordMode, TRUE); // 0x08 判定はこの中で行われる
+
+					if (!result)
+					{
+						{
+							// debug msg
+							char text[512];
+							sprintf(text, "Line %d: %s", lineCnt, lineBuf);
+							::MessageBoxA(NULL, text, "I2C Read Error", MB_OK);
+						}
+						AfxMessageBox(ID_MSG_ERR_INIT);
+						pMainWnd->m_ThreadReturn = 6;
+						delete[] readBuf;
+						goto readfile_end;
+					}
+
+					delete[] readBuf;
+				}
+			}
+		}
+		else
+		{
+			// I2C送信
+			if (ulItem.size() != 0)
+			{
+				regAddr = ulItem[0];
+				if (ulItem.size() > 1)
+				{
+					BYTE* sendBuf = new BYTE[ulItem.size() - 1];
+					for (i = 1;i < ulItem.size();i++) {
+						sendBuf[i - 1] = (UCHAR)ulItem[i];
+					}
+
+					if (!(pMainWnd->m_sviUsbControl).SetValue2(deviceAddr, regAddr, sendBuf, ulItem.size() - 1, wordMode)) // 0x08 判定はこの中で行われる
+					{
+						{
+							// debug msg
+							char text[512];
+							sprintf(text, "Line %d: %s", lineCnt, lineBuf);
+							::MessageBoxA(NULL, text, "I2C Write Error", MB_OK);
+						}
+						AfxMessageBox(ID_MSG_ERR_INIT);
+						pMainWnd->m_ThreadReturn = 6;
+						delete[] sendBuf;
+						goto readfile_end;
+					}
+					delete[] sendBuf;
+				}
+			}
+		}
+	}
+
+	/*
+	pMainWnd->SetDlgItemText(ID_DUMP_VALUE, readValueText);
+	// 最終行を常に表示
+	CEdit* pEdit = (CEdit*)(pMainWnd->GetDlgItem(ID_DUMP_VALUE));
+	pEdit->LineScroll(pEdit->GetLineCount());
+	*/
+
+
+readfile_end:
+//	::PostMessage(pMainWnd->MsgDialog.m_hWnd, WM_CLOSE, 0, 0);
+	if (rcvWorkBuff) delete[] rcvWorkBuff;
+
+	if ((pMainWnd->m_sviUsbControl).close() == false) {
+		AfxMessageBox(ID_MSG_ERR_NO_SVI03);
+		goto readfile_end;
+	}
+
+//	pMainWnd->EndDialog(0);
+	return 0;
+}
+
 
 bool CSVIctlDlg::Checkalnum(LPCTSTR strText,bool cammaflg)
 {

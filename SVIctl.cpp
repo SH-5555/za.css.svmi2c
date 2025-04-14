@@ -115,10 +115,26 @@ void WINAPI ShowSettingDialog()
 
 int WINAPI SendSettingFile(char *filePath)
 {
+#if 1
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CSVIctlDlg* dlg = new CSVIctlDlg();
+
+	BOOL ret = dlg->OpenCaptureBoard(); //  Create(IDD_SVICTL_DIALOG, NULL);
+	if (!ret) //Create failed.
+	{
+		AfxMessageBox(_T("Error creating Dialog"));
+		return -1;
+	}
+
+	int result = dlg->SettingFileWriteNoUI(filePath);
+
+	delete dlg;
+	return result;
+#else
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
 	CSVIctlDlg *dlg = new CSVIctlDlg();
-//	dlg = new CSVIctlDlg();
 
 	BOOL ret = dlg->Create(IDD_SVICTL_DIALOG, NULL);
 	if (!ret) //Create failed.
@@ -127,11 +143,14 @@ int WINAPI SendSettingFile(char *filePath)
 		return -1;
 	}
 
-	dlg->ShowWindow(SW_HIDE/*SW_SHOW*/);
+	dlg->ShowWindow(SW_HIDE);
 	int result = dlg->SettingFileWrite(filePath);
 	dlg->CloseWindow();
+	dlg->DestroyWindow();
+	delete dlg;
 
 	return result;
+#endif
 }
 
 int WINAPI WriteRegValue(ULONG devAddr, ULONG regAddr, UCHAR regVal)
