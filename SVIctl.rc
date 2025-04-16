@@ -134,8 +134,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,10,1,0
- PRODUCTVERSION 0,10,1,0
+ FILEVERSION 0,11,1,0
+ PRODUCTVERSION 0,11,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -152,12 +152,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Net Vision Corporation"
             VALUE "FileDescription", "SVMCtl_I2C Application"
-            VALUE "FileVersion", "0.10.1.0"
+            VALUE "FileVersion", "0.11.1.0"
             VALUE "InternalName", "SVMctl"
             VALUE "LegalCopyright", "Copyright (C) 2014-2021 Net Vision Corporation"
             VALUE "OriginalFilename", "SVMctl.exe"
             VALUE "ProductName", "SVMctl Application"
-            VALUE "ProductVersion", "0.10.1.0"
+            VALUE "ProductVersion", "0.11.1.0"
         END
     END
     BLOCK "VarFileInfo"

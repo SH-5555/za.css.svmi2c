@@ -325,19 +325,15 @@ BOOL CSVIctlDlg::OpenCaptureBoard()
 
 	// ID_SUB_ADDRESS
 	CString subAddress = iniFile.GetString(INI_KEY_SUB_ADDRESS, DEFAULT_SUB_ADDRESS);
-//	this->SetDlgItemText(ID_SUB_ADDRESS, subAddress);
 
 	// ID_VALUE
 	CString value = iniFile.GetString(INI_KEY_VALUE, DEFAULT_VALUE);
-//	this->SetDlgItemText(ID_VALUE, value);
 
 	// ID_READ_COUNTS
 	CString readCounts = iniFile.GetString(INI_KEY_READ_COUNTS, DEFAULT_READ_COUNTS);
-//	this->SetDlgItemText(ID_READ_COUNTS, readCounts);
 
 	// ID_WORD_ADDRESS
 	int wordAddress = iniFile.GetInt(INI_KEY_WORD_ADDRESS, DEFAULT_WORD_ADDRESS);
-//	((CButton*)this->GetDlgItem(ID_WORD_ADDRESS))->SetCheck(wordAddress);
 
 	// [15/05/25] Get FW Version
 	{
@@ -766,70 +762,21 @@ int CSVIctlDlg::ParseCsv(CString strData, UCHAR* workBuf, ULONG bufSize/*vector<
 	return count;
 }
 
+/*
+ *  レジスタ値の書込み
+ */
 int CSVIctlDlg::WriteReg(ULONG devAddr, ULONG regAddr, UCHAR regVal)
 {
-//	CButton* pCheck = (CButton*)GetDlgItem(ID_WORD_ADDRESS);
 	UCHAR rcvBuf[1024];
-//	ULONG deviceAddr, registorAddr;
 	CString strText;
 	char* temp;
 
 	// 選択されているSVI-03ボードを設定します
 	if (IsBoardSelected() == false)
 	{
-		AfxMessageBox("BoardNotSelected");
 		return -5;
 	}
 
-	// 設定値の取得
-	// Slave Addressの取得
-	//GetDlgItemText(ID_SLAVE_ADDRESS, strText);
-	//strText.TrimLeft();
-	//strText.TrimRight();
-	//if (strText.GetLength() == 0)
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSLAVE);
-	//	return;
-	//}
-	//if (!CSVIctlDlg::Checkalnum((LPCTSTR)strText))
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_DATASLAVE);
-	//	return;
-	//}
-
-	//deviceAddr = devAddr;
-
-	// SubAddressの取得
-	//GetDlgItemText(ID_SUB_ADDRESS, strText);
-	//strText.TrimLeft();
-	//strText.TrimRight();
-	//if (strText.GetLength() == 0)
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSUB);
-	//	return;
-	//}
-	//if (!Checkalnum((LPCTSTR)strText))
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSUB);
-	//	return;
-	//}
-	//regAddr = _tcstoul(strText, &temp, 16);
-
-	// Valueの取得
-	//GetDlgItemText(ID_VALUE, strText);
-	//strText = strVals;
-	//strText.TrimLeft();
-	//strText.TrimRight();
-	//if (strText.GetLength() == 0)
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_NOINPUTVALUE);
-	//	return -3;
-	//}
-	//if (!Checkalnum((LPCTSTR)strText, true))
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_DATAVALUE);
-	//	return -4;
-	//}
 
 	if (devAddr == 0x08) {
 		ULONG ulVal;
@@ -842,20 +789,12 @@ int CSVIctlDlg::WriteReg(ULONG devAddr, ULONG regAddr, UCHAR regVal)
 		// カメラレジスタの設定
 		if (!m_sviUsbControl.SetValue(devAddr, regAddr, bVal, 4, false))
 		{
-			AfxMessageBox(ID_MSG_ERR_WRITE);
 			return -1;
 		}
 	}
 	else {
-		// カンマをパースし、rcvBufに設定
-		//int dataSize = ParseCsv(strText, rcvBuf, sizeof(rcvBuf));
-		//if (dataSize == 0) return -2;
-
-		// カメラレジスタの設定
-		//if (!m_sviUsbControl.SetValue(devAddr, regAddr, rcvBuf, dataSize, pCheck->GetCheck()))
 		if (!m_sviUsbControl.SetValue(devAddr, regAddr, &regVal, 1, true))
 		{
-			AfxMessageBox(ID_MSG_ERR_WRITE);
 			return -1;
 		}
 	}
@@ -1052,6 +991,9 @@ void CSVIctlDlg::OnRead()
 	pEdit->LineScroll(pEdit->GetLineCount());
 }
 
+/*
+ *  設定ファイルの書込み（UIなし版）
+ */
 int CSVIctlDlg::SettingFileWriteNoUI(char* fileName)
 {
 	int result = 0;
@@ -1077,6 +1019,9 @@ int CSVIctlDlg::SettingFileWriteNoUI(char* fileName)
 	return result;
 }
 
+/*
+ *  設定ファイルの書込み（UI制御版）
+ */
 int CSVIctlDlg::SettingFileWrite(char* fileName)
 {
 	int result = 0;
@@ -1434,10 +1379,12 @@ readfile_end:
 	return 0;
 }
 
+/*
+ *  設定ファイル書込み処理スレッド（UIなし版）
+ */
 UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 {
 	CSVIctlDlg* pMainWnd = (CSVIctlDlg*)pMain;
-//	CButton* pCheck = (CButton*)pMainWnd->GetDlgItem(ID_WORD_ADDRESS);
 	int wordMode = 0; //pCheck->GetCheck();
 
 	ULONG			deviceAddr;
@@ -1465,37 +1412,15 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 
 	char itemBuf[2560];
 	vector<ULONG> ulItem;
-	//ULONG ulItem[200];
 	unsigned long ulFileLen;
 	CFile file;
 
 	pMainWnd->m_ThreadReturn = 0;
 
-	//pMainWnd->GetDlgItemText(ID_DUMP_VALUE, readValueText);
-
 	if ((pMainWnd->m_sviUsbControl).open() == false) {
-		AfxMessageBox(ID_MSG_ERR_NO_SVI03);
 		pMainWnd->m_ThreadReturn = 1;
-		goto readfile_end;
+		goto readfile_end_xfer;
 	}
-
-	// 設定値の取得
-	// Slave Addressの取得
-	//pMainWnd->GetDlgItemText(ID_SLAVE_ADDRESS, strText);
-	//strText.TrimLeft();
-	//strText.TrimRight();
-	//if (strText.GetLength() == 0)
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_NOINPUTSLAVE);
-	//	pMainWnd->m_ThreadReturn = 2;
-	//	goto readfile_end;
-	//}
-	//if (!pMainWnd->Checkalnum((LPCTSTR)strText))
-	//{
-	//	AfxMessageBox(ID_MSG_ERR_DATASLAVE);
-	//	pMainWnd->m_ThreadReturn = 3;
-	//	goto readfile_end;
-	//}
 
 	deviceAddr = _tcstoul("1a", &temp, 16);
 
@@ -1504,24 +1429,22 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 		CFile::shareExclusive |
 		CFile::typeBinary))
 	{
-		AfxMessageBox(ID_MSG_ERR_FILEOPEN);
 		pMainWnd->m_ThreadReturn = 4;
-		goto readfile_end;
+		goto readfile_end_xfer;
 	}
 
 	// ファイル読み込み(カンマ区切り形式)
 	ulFileLen = file.GetLength();
 	rcvWorkBuff = new UCHAR[ulFileLen + 2];
 	file.Read(rcvWorkBuff, ulFileLen);
-	rcvWorkBuff[ulFileLen++] = '\0';// [21/04/06] avoid fail for reading last line
+	rcvWorkBuff[ulFileLen++] = '\0';
 	strValue = rcvWorkBuff;
 	file.Close();
 
 	// 正常に読み込めなかったらエラー
 	if (strValue.GetLength() == 0) {
-		AfxMessageBox(ID_MSG_ERR_FILEREAD);
 		pMainWnd->m_ThreadReturn = 5;
-		goto readfile_end;
+		goto readfile_end_xfer;
 	}
 
 	int lineCnt = 0;
@@ -1538,7 +1461,7 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 				fpos += 2;
 				break;
 			}
-			else if (rcvWorkBuff[fpos] == '\r' || rcvWorkBuff[fpos] == '\n' || rcvWorkBuff[fpos] == '\0') // [21/04/06] avoid fail for reading last line
+			else if (rcvWorkBuff[fpos] == '\r' || rcvWorkBuff[fpos] == '\n' || rcvWorkBuff[fpos] == '\0')
 			{
 				lineBuf[bpos++] = '\0';
 				lineCnt++;
@@ -1579,7 +1502,7 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 						unit_f = 0;
 					}
 					else if (wt_f != 0) {
-						wt = strtol(itemBuf, &temp, unit); // [17/12/06] unit should be 10 but this inherites old version...
+						wt = strtol(itemBuf, &temp, unit);
 						Sleep(wt);
 						wt_f = 0;
 					}
@@ -1615,15 +1538,8 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 			read_f = 0;
 			if (ulItem.size() != 2) // READ コマンドが不完全
 			{
-				{
-					// debug msg
-					char text[512];
-					sprintf(text, "Line %d: %s", lineCnt, lineBuf);
-					::MessageBoxA(NULL, text, "Error (incomplete READ command)", MB_OK);
-				}
-				AfxMessageBox(ID_MSG_ERR_INIT);
 				pMainWnd->m_ThreadReturn = 6;
-				goto readfile_end;
+				goto readfile_end_xfer;
 			}
 			else
 			{
@@ -1632,12 +1548,8 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 
 				if (readSize == 0)
 				{
-					char text[512];
-					sprintf(text, "Line %d: %s", lineCnt, lineBuf);
-					::MessageBoxA(NULL, text, "Error (Read count is 0)", MB_OK);
-					AfxMessageBox(ID_MSG_ERR_INIT);
 					pMainWnd->m_ThreadReturn = 6;
-					goto readfile_end;
+					goto readfile_end_xfer;
 				}
 				else
 				{
@@ -1647,16 +1559,9 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 
 					if (!result)
 					{
-						{
-							// debug msg
-							char text[512];
-							sprintf(text, "Line %d: %s", lineCnt, lineBuf);
-							::MessageBoxA(NULL, text, "I2C Read Error", MB_OK);
-						}
-						AfxMessageBox(ID_MSG_ERR_INIT);
 						pMainWnd->m_ThreadReturn = 6;
 						delete[] readBuf;
-						goto readfile_end;
+						goto readfile_end_xfer;
 					}
 
 					delete[] readBuf;
@@ -1671,23 +1576,16 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 				regAddr = ulItem[0];
 				if (ulItem.size() > 1)
 				{
-					BYTE* sendBuf = new BYTE[ulItem.size() - 1];
-					for (i = 1;i < ulItem.size();i++) {
+					BYTE* sendBuf = new BYTE[ulItem.size()];
+					for (i = 1;i < ulItem.size(); i++) {
 						sendBuf[i - 1] = (UCHAR)ulItem[i];
 					}
 
 					if (!(pMainWnd->m_sviUsbControl).SetValue2(deviceAddr, regAddr, sendBuf, ulItem.size() - 1, wordMode)) // 0x08 判定はこの中で行われる
 					{
-						{
-							// debug msg
-							char text[512];
-							sprintf(text, "Line %d: %s", lineCnt, lineBuf);
-							::MessageBoxA(NULL, text, "I2C Write Error", MB_OK);
-						}
-						AfxMessageBox(ID_MSG_ERR_INIT);
 						pMainWnd->m_ThreadReturn = 6;
 						delete[] sendBuf;
-						goto readfile_end;
+						goto readfile_end_xfer;
 					}
 					delete[] sendBuf;
 				}
@@ -1695,24 +1593,14 @@ UINT CSVIctlDlg::XferFileThread(LPVOID pMain)
 		}
 	}
 
-	/*
-	pMainWnd->SetDlgItemText(ID_DUMP_VALUE, readValueText);
-	// 最終行を常に表示
-	CEdit* pEdit = (CEdit*)(pMainWnd->GetDlgItem(ID_DUMP_VALUE));
-	pEdit->LineScroll(pEdit->GetLineCount());
-	*/
-
-
-readfile_end:
-//	::PostMessage(pMainWnd->MsgDialog.m_hWnd, WM_CLOSE, 0, 0);
+readfile_end_xfer:
 	if (rcvWorkBuff) delete[] rcvWorkBuff;
 
 	if ((pMainWnd->m_sviUsbControl).close() == false) {
 		AfxMessageBox(ID_MSG_ERR_NO_SVI03);
-		goto readfile_end;
+		goto readfile_end_xfer;
 	}
 
-//	pMainWnd->EndDialog(0);
 	return 0;
 }
 

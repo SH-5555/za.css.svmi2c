@@ -120,10 +120,9 @@ int WINAPI SendSettingFile(char *filePath)
 
 	CSVIctlDlg* dlg = new CSVIctlDlg();
 
-	BOOL ret = dlg->OpenCaptureBoard(); //  Create(IDD_SVICTL_DIALOG, NULL);
-	if (!ret) //Create failed.
+	BOOL ret = dlg->OpenCaptureBoard();
+	if (!ret)
 	{
-		AfxMessageBox(_T("Error creating Dialog"));
 		return -1;
 	}
 
@@ -139,7 +138,6 @@ int WINAPI SendSettingFile(char *filePath)
 	BOOL ret = dlg->Create(IDD_SVICTL_DIALOG, NULL);
 	if (!ret) //Create failed.
 	{
-		AfxMessageBox(_T("Error creating Dialog"));
 		return -1;
 	}
 
@@ -158,10 +156,9 @@ int WINAPI WriteRegValue(ULONG devAddr, ULONG regAddr, UCHAR regVal)
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	CSVIctlDlg* dlg = new CSVIctlDlg();
 
-	BOOL ret = dlg->OpenCaptureBoard(); //  Create(IDD_SVICTL_DIALOG, NULL);
-	if (!ret) //Create failed.
+	BOOL ret = dlg->OpenCaptureBoard();
+	if (!ret)
 	{
-		AfxMessageBox(_T("Error creating Dialog"));
 		return -1;
 	}
 
